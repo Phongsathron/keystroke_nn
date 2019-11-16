@@ -1,7 +1,5 @@
 from flask import Flask, escape, request
 from werkzeug.utils import secure_filename
-import random
-import string
 import os
 
 from model import Model

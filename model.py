@@ -5,38 +5,41 @@ from tensorflow.keras.preprocessing import image
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
 
+from scipy import signal
+from scipy.io import wavfile
+
 import numpy as np
 import os
 
 import utils
 
 CLASS_NAME = {
-    0: 'a',
-    1: 'b',
-    2: 'c',
-    3: 'd',
-    4: 'e',
-    5: 'f',
-    6: 'g',
-    7: 'h',
-    8: 'i',
-    9: 'j',
-    10: 'k',
-    11: 'l',
-    12: 'm',
-    13: 'n',
-    14: 'o',
-    15: 'p',
-    16: 'q',
-    17: 'r',
-    18: 's',
-    19: 't',
-    20: 'u',
-    21: 'v',
-    22: 'w',
-    23: 'x',
-    24: 'y',
-    25: 'z'
+    0: 'l',
+    1: 'k',
+    2: 'g',
+    3: 'm',
+    4: 'i',
+    5: 'n',
+    6: 'v',
+    7: 's',
+    8: 'e',
+    9: 'u',
+    10: 'q',
+    11: 'r',
+    12: 'p',
+    13: 'w',
+    14: 'y',
+    15: 'j',
+    16: 'c',
+    17: 't',
+    18: 'b',
+    19: 'x',
+    20: 'a',
+    21: 'f',
+    22: 'o',
+    23: 'z',
+    24: 'h',
+    25: 'd'
 }
 
 class Model:
@@ -44,16 +47,18 @@ class Model:
         super().__init__()
 
         self.n_alpha = n_alpha
-        self.model = None
-        self.weight = os.path.abspath(weight)
+        self.weight = weight
 
         self.audio_path = os.path.abspath('audio')
-        # self.wav_audio_path = os.path.abspath('wav_audio')
+        self.wav_audio_path = os.path.abspath('wav_audio')
         self.audio_split_path = os.path.abspath('split_audio')
         self.specgram_split_path = os.path.abspath('split_specgram')
 
-    def __new__(cls, n_alpha=26, weight='weight/weight.h5'):
-        return super(Model, cls).__new__(cls)
+        self.model = self._create()
+
+
+    # def __new__(cls, n_alpha=26, weight='weight/weight.h5'):
+    #     return super(Model, cls).__init__(n_alpha, weight)
 
     def _create(self):
         model = tf.keras.Sequential()
@@ -91,7 +96,7 @@ class Model:
             return spectogram file path.
         """
         audio_file = os.path.join(self.audio_path, filename)
-        audio = AudioSegment.from_file(audio_file, "mp4")
+        audio = AudioSegment.from_file(audio_file, "m4a")
 
         average_loudness = audio.dBFS
         chunks = split_on_silence(
@@ -105,9 +110,15 @@ class Model:
 
         n_chunks = len(chunks)
         for i in range(n_chunks):
+            wav_file_name = "%s_chunk%d.wav" %(filename.split('/')[-1][:-4], i)
+            wav_output_path = os.path.join(self.wav_audio_path, wav_file_name)
+            chunks[i].export(wav_output_path, "wav")
+            
+            sample_rate, samples = wavfile.read(wav_output_path)
+
             spec_file_name = "%s_chunk%d.png" %(filename.split('/')[-1][:-4], i)
             output_path = os.path.join(self.specgram_split_path, spec_file_name)
-            utils.plot_spectogram(chunks[i], chunks[i].frame_rate, output_path)
+            utils.plot_spectogram(samples, sample_rate, output_path)
 
             specgram_file_paths.append(output_path)
 
