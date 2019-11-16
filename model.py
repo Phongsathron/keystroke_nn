@@ -52,7 +52,8 @@ class Model:
         self.audio_split_path = os.path.abspath('split_audio')
         self.specgram_split_path = os.path.abspath('split_specgram')
 
-        return self._create()
+    def __new__(cls, n_alpha=26, weight='weight/weight.h5'):
+        return super(Model, cls).__new__(cls)
 
     def _create(self):
         model = tf.keras.Sequential()
@@ -104,7 +105,7 @@ class Model:
 
         n_chunks = len(chunks)
         for i in range(n_chunks):
-            spec_file_name = "%s_chunk%d.png" %(filename[:-4], i)
+            spec_file_name = "%s_chunk%d.png" %(filename.split('/')[-1][:-4], i)
             output_path = os.path.join(self.specgram_split_path, spec_file_name)
             utils.plot_spectogram(chunks[i], chunks[i].frame_rate, output_path)
 

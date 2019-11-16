@@ -9,3 +9,8 @@ def plot_spectogram(audio_data, frame_rate, output_path):
     ax.axis('off')
     fig.save(output_path, dpi=300, frameon='false')
     plt.close(fig)
+
+def randomStringDigits(stringLength=6):
+    """Generate a random string of letters and digits """
+    lettersAndDigits = string.ascii_letters + string.digits
+    return ''.join(random.choice(lettersAndDigits) for i in range(stringLength))
