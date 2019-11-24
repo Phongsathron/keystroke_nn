@@ -1,4 +1,4 @@
-from flask import Flask, escape, request
+from flask import Flask, escape, request, jsonify
 from werkzeug.utils import secure_filename
 import os
 
@@ -20,5 +20,19 @@ def predict():
     filepath = os.path.abspath('audio/'+secure_filename(filename))
     f.save(filepath)
     
-    result = model.predict(filepath)
+    result_from_model = model.predict(filepath)
+    posibleKey, bruteforces, spellCorrect, badPassword = utils.spellchecker_and_neighbour(result_from_model)
+
+    bf_filename = filename[:-4]+'.txt'
+    bf_path = os.path.abspath('bruteforce/'+secure_filename(bf_filename))
+    bf_file = open(bf_filename, "w+")
+
+    for bruteforce in bruteforces:
+        bf_file.write(bruteforce)
+    bf_file.close()
+
     return result
+
+@app.route('/download/')
+def download():
+    pass

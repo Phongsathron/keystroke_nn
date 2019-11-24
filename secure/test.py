@@ -2,7 +2,9 @@ import logging
 import threading
 import time
 from spellchecker import SpellChecker
+
 spell = SpellChecker()
+spell2 = SpellChecker(language=None,case_sensitive=False)
 
 
 def checkPosition(characterS):
@@ -87,7 +89,7 @@ def getAllprobWord(arrayText,genList,text):
 
 def getMapAllProbinCheckSpell(correctWord,text):
     """get var from map in rockyou"""
-    return list(spell.known(correctWord)),list(spell.known([spell.correction(text)]))
+    return list(spell2.known(correctWord)),list(spell.known([spell2.correction(text)]))
 
 
 
@@ -118,11 +120,12 @@ def mainLoop(text):
     correctionWordnotMap = correctWord
     # delete missepl in all brob
 
-    spell.word_frequency.load_text_file('test.txt')
+    spell2.word_frequency.load_text_file('test.txt')
     # add top 500 rockyou
     
     correctWord,caseInput = getMapAllProbinCheckSpell(correctWord,text)
-    
+    if(caseInput not in correctWord and len(caseInput) != 0 ):correctWord.append(caseInput[0])
+
     # check in correctword+top500badpassword
     # print(correctionWordnotMap)
     # print(correctWord)
@@ -131,5 +134,8 @@ def mainLoop(text):
     # get getList for get All prob word ** more than 1m if len text >= 6
     # get correction for get word map from rockyou
     # caseInput for case like abizail
+    # print(arrayText)
+    # print('loving' in genList)
+    print(correctWord) 
     
 mainLoop(input())
